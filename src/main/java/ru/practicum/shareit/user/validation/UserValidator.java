@@ -10,16 +10,6 @@ import java.util.Map;
 @Component
 public class UserValidator {
 
-    public void validateEmail(String email) {
-        if (email == null || email.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email не может быть пустым");
-        }
-
-        if (!email.contains("@")) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email некорректный");
-        }
-    }
-
     public void checkEmailUnique(String email, Map<Long, User> users) {
         boolean emailExists = users.values().stream()
                 .anyMatch(u -> u.getEmail().equals(email));
@@ -37,6 +27,4 @@ public class UserValidator {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email используется другим пользователем");
         }
     }
-
-
 }

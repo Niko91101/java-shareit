@@ -1,21 +1,27 @@
 package ru.practicum.shareit.item.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
-/**
- * TODO Sprint add-controllers.
- */
 @Data
 @NoArgsConstructor
 public class ItemDto {
 
     private Long id;
+
+    @NotBlank(message = "Название не должно быть пустым")
     private String name;
+
+    @NotBlank(message = "Описание не должно быть пустым")
     private String description;
+
+    @NotNull(message = "Поле available не должно быть null")
     private Boolean available;
+
     private User owner;
     private ItemRequest request;
 }

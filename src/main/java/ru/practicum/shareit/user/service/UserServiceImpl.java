@@ -25,7 +25,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto addUser(UserDto userDto) {
-        userValidator.validateEmail(userDto.getEmail());
         userValidator.checkEmailUnique(userDto.getEmail(), users);
 
         User user = UserMapper.toUser(userDto);
@@ -47,7 +46,6 @@ public class UserServiceImpl implements UserService {
         }
 
         if (userDto.getEmail() != null) {
-            userValidator.validateEmail(userDto.getEmail());
             userValidator.checkEmailUniqueForUpdate(userDto.getEmail(), userId, users);
             existing.setEmail(userDto.getEmail());
         }

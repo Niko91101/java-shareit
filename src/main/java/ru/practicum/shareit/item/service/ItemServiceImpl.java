@@ -6,7 +6,6 @@ import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.validation.ItemValidator;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
@@ -38,7 +37,6 @@ public class ItemServiceImpl implements ItemService {
         item.setId(idGenerator.getAndIncrement());
         item.setOwner(owner);
 
-        ItemValidator.validate(item);
 
         items.put(item.getId(), item);
         return ItemMapper.toDto(item);
