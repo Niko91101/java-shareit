@@ -10,9 +10,9 @@ public interface ItemService {
 
     ItemDto addItem(Long ownerId, ItemDto itemDto);
 
-    ItemDto updateItem(Long ownerId, Long itemId, ItemDto itemDto); 
+    ItemDto updateItem(Long ownerId, Long itemId, ItemDto itemDto);
 
-    ItemResponseDto getItem(Long itemId, Long userId);  
+    ItemResponseDto getItem(Long itemId, Long userId);
 
     List<ItemResponseDto> getItemsByOwner(Long ownerId);
 
