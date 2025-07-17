@@ -1,89 +1,130 @@
 package ru.practicum.shareit.item.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.comment.dto.CommentDto;
+import ru.practicum.shareit.comment.mapper.CommentMapper;
+import ru.practicum.shareit.comment.model.Comment;
+import ru.practicum.shareit.comment.repository.CommentRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemResponseDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.mapper.ItemResponseMapper;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.mapper.UserMapper;
-import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.service.UserService;
+import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.item.validation.ItemValidator;
+import ru.practicum.shareit.user.repository.UserRepository;
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
 
-    private final Map<Long, Item> items = new HashMap<>();
-    private final AtomicLong idGenerator = new AtomicLong(1);
-    private final UserService userService;
-
-    public ItemServiceImpl(UserService userService) {
-        this.userService = userService;
-    }
+    private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
+    private final ItemValidator itemValidator;
+    private final BookingRepository bookingRepository;
 
     @Override
-    public ItemDto addItem(Long userId, ItemDto itemDto) {
-        User owner = UserMapper.toUser(userService.getUser(userId));
-
-        if (owner == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь не найден");
-        }
+    public ItemDto addItem(Long ownerId, ItemDto itemDto) {
+        itemValidator.checkUserExistence(ownerId);
 
         Item item = ItemMapper.toItem(itemDto);
-        item.setId(idGenerator.getAndIncrement());
-        item.setOwner(owner);
+        item.setOwner(userRepository.findById(ownerId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь не найден")));
+        Item savedItem = itemRepository.save(item);
 
-
-        items.put(item.getId(), item);
-        return ItemMapper.toDto(item);
+        return ItemMapper.toDto(savedItem);
     }
 
     @Override
-    public ItemDto updateItem(Long itemId, Long userId, ItemDto itemDto) {
-        Item item = items.get(itemId);
-        if (item == null || !item.getOwner().getId().equals(userId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Нет доступа к вещи или она не найдена");
+    public ItemDto updateItem(Long ownerId, Long itemId, ItemDto itemDto) {
+        if (ownerId == null || ownerId <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Для выполнения операции необходимо указать корректный идентификатор пользователя.");
         }
+
+        itemValidator.checkItemExistence(itemId);
+        itemValidator.checkOwner(itemId, ownerId);
+
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Предмет с таким ID не найден"));
 
         if (itemDto.getName() != null) item.setName(itemDto.getName());
         if (itemDto.getDescription() != null) item.setDescription(itemDto.getDescription());
         if (itemDto.getAvailable() != null) item.setAvailable(itemDto.getAvailable());
 
-        return ItemMapper.toDto(item);
+        Item savedItem = itemRepository.save(item);
+
+        return ItemMapper.toDto(savedItem);
     }
 
     @Override
-    public ItemDto getItem(Long itemId) {
-        Item item = items.get(itemId);
-        if (item == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Вещь не найдена");
-        }
-        return ItemMapper.toDto(item);
+    public ItemResponseDto getItem(Long itemId, Long userId) {
+        itemValidator.checkItemExistence(itemId);
+
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Предмет не найден"));
+
+        List<CommentDto> comments = commentRepository.findByItemId(itemId)
+                .stream()
+                .map(CommentMapper::toDto)
+                .collect(Collectors.toList());
+
+        return ItemResponseMapper.toResponseDto(item, null, null, comments);
     }
 
     @Override
-    public List<ItemDto> getItemsByOwner(Long userId) {
-        return items.values().stream()
-                .filter(i -> i.getOwner().getId().equals(userId))
-                .map(ItemMapper::toDto)
+    public List<ItemResponseDto> getItemsByOwner(Long ownerId) {
+        itemValidator.checkUserExistence(ownerId);
+
+        List<Item> items = itemRepository.findByOwnerId(ownerId);
+
+        return items.stream()
+                .map(item -> ItemResponseMapper.toResponseDto(item, null, null, null))
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<ItemDto> search(String text) {
         if (text == null || text.isBlank()) {
-            return Collections.emptyList();
+            return List.of();
         }
 
-        String lower = text.toLowerCase();
-        return items.values().stream()
-                .filter(Item::getAvailable)
-                .filter(i -> i.getName().toLowerCase().contains(lower) || i.getDescription().toLowerCase().contains(lower))
+        return itemRepository.searchAvailableItems(text)
+                .stream()
                 .map(ItemMapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public CommentDto addComment(Long userId, Long itemId, CommentDto commentDto) {
+        itemValidator.checkItemExistence(itemId);
+        itemValidator.checkUserExistence(userId);
+
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Вещь не найдена"));
+
+        boolean isBooker = bookingRepository.existsByBookerIdAndItemIdAndEndBefore(
+                userId, itemId, LocalDateTime.now()
+        );
+        if (!isBooker) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Пользователь не арендовал эту вещь или аренда ещё не завершена");
+        }
+
+        Comment comment = new Comment();
+        comment.setText(commentDto.getText());
+        comment.setItem(item);
+        comment.setAuthor(userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь не найден")));
+        comment.setCreated(LocalDateTime.now());
+
+        return CommentMapper.toDto(commentRepository.save(comment));
     }
 }
