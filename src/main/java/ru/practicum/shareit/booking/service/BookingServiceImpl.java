@@ -3,6 +3,7 @@ package ru.practicum.shareit.booking.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
@@ -31,6 +32,7 @@ public class BookingServiceImpl implements BookingService {
     private final BookingValidator bookingValidator;
 
     @Override
+    @Transactional
     public BookingResponseDto create(Long userId, BookingDto bookingDto) {
         bookingValidator.checkUserExistence(userId);
         bookingValidator.checkItemAvailability(bookingDto.getItemId());
@@ -51,6 +53,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional
     public BookingResponseDto approve(Long ownerId, Long bookingId, boolean approved) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "Бронирование не найдено"));
@@ -68,6 +71,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BookingResponseDto get(Long userId, Long bookingId) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "Бронирование не найдено"));
@@ -80,6 +84,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<BookingResponseDto> getAllByUser(Long userId, BookingState state) {
         userRepository.findById(userId).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь не найден"));
@@ -91,6 +96,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<BookingResponseDto> getAllByOwner(Long ownerId, BookingState state) {
         userRepository.findById(ownerId).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь не найден"));

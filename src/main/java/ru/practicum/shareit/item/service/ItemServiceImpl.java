@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.comment.dto.CommentDto;
@@ -33,6 +34,7 @@ public class ItemServiceImpl implements ItemService {
     private final BookingRepository bookingRepository;
 
     @Override
+    @Transactional
     public ItemDto addItem(Long ownerId, ItemDto itemDto) {
         itemValidator.checkUserExistence(ownerId);
 
@@ -45,6 +47,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public ItemDto updateItem(Long ownerId, Long itemId, ItemDto itemDto) {
         if (ownerId == null || ownerId <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Для выполнения операции необходимо указать корректный идентификатор пользователя.");
@@ -66,6 +69,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ItemResponseDto getItem(Long itemId, Long userId) {
         itemValidator.checkItemExistence(itemId);
 
@@ -81,6 +85,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ItemResponseDto> getItemsByOwner(Long ownerId) {
         itemValidator.checkUserExistence(ownerId);
 
@@ -92,6 +97,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ItemDto> search(String text) {
         if (text == null || text.isBlank()) {
             return List.of();
@@ -104,6 +110,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public CommentDto addComment(Long userId, Long itemId, CommentDto commentDto) {
         itemValidator.checkItemExistence(itemId);
         itemValidator.checkUserExistence(userId);
