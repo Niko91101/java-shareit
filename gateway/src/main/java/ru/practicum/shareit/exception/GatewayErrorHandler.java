@@ -55,13 +55,13 @@ public class GatewayErrorHandler {
     }
 
     @ExceptionHandler(Throwable.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<Map<String, String>> handleOther(Throwable ex) {
         Map<String, String> error = new HashMap<>();
-        error.put("error", "Внутренняя ошибка сервера");
+        error.put("error", "Некорректные данные");
         error.put("details", ex.getMessage());
-        log.error("Необработанное исключение", ex);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        log.warn("Ошибка с запросом: {}", ex.getMessage());
+        return ResponseEntity.badRequest()
                 .header("Content-Type", "application/json; charset=UTF-8")
                 .body(error);
     }
