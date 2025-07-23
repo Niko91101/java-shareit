@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.client.ItemClient;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.validator.TextValidator;
+
+import java.util.Collections;
 
 @RestController
 @RequestMapping("/items")
@@ -18,6 +21,7 @@ import ru.practicum.shareit.item.dto.CommentDto;
 public class ItemController {
 
     private final ItemClient itemClient;
+    private final TextValidator textValidator;
 
     @PostMapping
     public ResponseEntity<Object> createItem(@RequestHeader("X-Sharer-User-Id") long userId,
@@ -55,6 +59,13 @@ public class ItemController {
                                               @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
                                               @Positive @RequestParam(defaultValue = "10") Integer size) {
         log.info("Ищем вещи по запросу='{}', пользователь={}, from={}, size={}", text, userId, from, size);
+
+        // Используем наш TextValidator для проверки текста
+        if (!textValidator.isTextValid(text)) {
+            log.info("Текст запроса пуст или состоит только из пробелов. Возвращаем пустую коллекцию.");
+            return ResponseEntity.ok(Collections.emptyList());
+        }
+
         return itemClient.searchItems(userId, text, from, size);
     }
 
