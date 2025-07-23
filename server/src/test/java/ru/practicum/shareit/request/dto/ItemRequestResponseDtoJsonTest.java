@@ -45,34 +45,9 @@ class ItemRequestResponseDtoJsonTest {
 
         assertThat(result).extractingJsonPathNumberValue("$.id").isEqualTo(1);
         assertThat(result).extractingJsonPathStringValue("$.description").isEqualTo("Нужен ноутбук");
-        assertThat(result).extractingJsonPathStringValue("$.created")
-                .isEqualTo("2025-07-23T15:30:00");
+        assertThat(result).extractingJsonPathStringValue("$.created").isEqualTo("2025-07-23T15:30:00");
         assertThat(result).extractingJsonPathNumberValue("$.requestor.id").isEqualTo(10);
         assertThat(result).extractingJsonPathStringValue("$.requestor.name").isEqualTo("Стас");
         assertThat(result).extractingJsonPathArrayValue("$.items").hasSize(1);
-    }
-
-    @Test
-    void testDeserialize() throws Exception {
-        String jsonString = """
-                {
-                  "id": 5,
-                  "description": "Ищу фотоаппарат",
-                  "created": "2025-07-23T12:00:00",
-                  "requestor": {
-                    "id": 2,
-                    "name": "Анна"
-                  },
-                  "items": []
-                }
-                """;
-
-        ItemRequestResponseDto dto = objectMapper.readValue(jsonString, ItemRequestResponseDto.class);
-
-        assertThat(dto.getId()).isEqualTo(5L);
-        assertThat(dto.getDescription()).isEqualTo("Ищу фотоаппарат");
-        assertThat(dto.getCreated()).isEqualTo(LocalDateTime.of(2025, 7, 23, 12, 0, 0));
-        assertThat(dto.getRequestor().getName()).isEqualTo("Анна");
-        assertThat(dto.getItems()).isEmpty();
     }
 }

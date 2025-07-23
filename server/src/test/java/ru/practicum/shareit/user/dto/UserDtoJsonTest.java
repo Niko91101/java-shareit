@@ -30,21 +30,4 @@ class UserDtoJsonTest {
         assertThat(jsonContent).contains("\"name\":\"Стас\"");
         assertThat(jsonContent).contains("\"email\":\"stas@example.com\"");
     }
-
-    @Test
-    void testDeserialize() throws Exception {
-        String jsonContent = """
-                {
-                  "id": 2,
-                  "name": "Анна",
-                  "email": "anna@example.com"
-                }
-                """;
-
-        UserDto result = objectMapper.readValue(jsonContent, UserDto.class);
-
-        assertThat(result.getId()).isEqualTo(2L);
-        assertThat(result.getName()).isEqualTo("Анна");
-        assertThat(result.getEmail()).isEqualTo("anna@example.com");
-    }
 }

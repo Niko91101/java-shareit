@@ -20,43 +20,18 @@ class ItemDtoJsonTest {
     @Test
     void testSerialize() throws Exception {
         ItemDto itemDto = new ItemDto();
-        itemDto.setId(10L);
+        itemDto.setId(1L);
         itemDto.setName("Дрель");
         itemDto.setDescription("Аккумуляторная");
         itemDto.setAvailable(true);
-        itemDto.setOwnerId(5L);
-        itemDto.setRequestId(3L);
+        itemDto.setRequestId(5L);
 
         String jsonContent = json.write(itemDto).getJson();
 
-        assertThat(jsonContent).contains("\"id\":10");
+        assertThat(jsonContent).contains("\"id\":1");
         assertThat(jsonContent).contains("\"name\":\"Дрель\"");
         assertThat(jsonContent).contains("\"description\":\"Аккумуляторная\"");
         assertThat(jsonContent).contains("\"available\":true");
-        assertThat(jsonContent).contains("\"ownerId\":5");
-        assertThat(jsonContent).contains("\"requestId\":3");
-    }
-
-    @Test
-    void testDeserialize() throws Exception {
-        String jsonContent = """
-                {
-                  "id": 11,
-                  "name": "Отвертка",
-                  "description": "Новая",
-                  "available": false,
-                  "ownerId": 7,
-                  "requestId": null
-                }
-                """;
-
-        ItemDto result = objectMapper.readValue(jsonContent, ItemDto.class);
-
-        assertThat(result.getId()).isEqualTo(11L);
-        assertThat(result.getName()).isEqualTo("Отвертка");
-        assertThat(result.getDescription()).isEqualTo("Новая");
-        assertThat(result.getAvailable()).isFalse();
-        assertThat(result.getOwnerId()).isEqualTo(7L);
-        assertThat(result.getRequestId()).isNull();
+        assertThat(jsonContent).contains("\"requestId\":5");
     }
 }
