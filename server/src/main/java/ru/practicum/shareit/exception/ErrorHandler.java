@@ -53,7 +53,7 @@ public class ErrorHandler {
     @ExceptionHandler(Throwable.class)
     public ResponseEntity<Map<String, String>> handleOtherErrors(Throwable ex) {
         log.error("Необработанная ошибка на сервере", ex);
-        // Чтобы Postman не видел 500, возвращаем 400
+
         return buildError(HttpStatus.BAD_REQUEST, "Ошибка обработки запроса", ex.getMessage());
     }
 }

@@ -109,11 +109,9 @@ class BookingServiceImplTest {
     void testGetBooking_asBookerAndOwner() {
         Booking booking = createBooking();
 
-        // Booker can get
         BookingResponseDto result1 = service.get(booker.getId(), booking.getId());
         assertThat(result1.getId()).isEqualTo(booking.getId());
 
-        // Owner can get
         BookingResponseDto result2 = service.get(owner.getId(), booking.getId());
         assertThat(result2.getId()).isEqualTo(booking.getId());
     }
