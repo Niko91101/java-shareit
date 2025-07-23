@@ -7,24 +7,29 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.client.UserClient;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.validator.UserValidator;
 
-
+@Slf4j
 @RestController
 @RequestMapping(path = "/users")
 @RequiredArgsConstructor
-@Slf4j
 public class UserController {
 
     private final UserClient userClient;
+    private final UserValidator userValidator;
 
     @PostMapping
     public ResponseEntity<Object> createUser(@RequestBody @Valid UserDto userDto) {
+        userValidator.checkEmailUnique(userDto.getEmail());
         log.info("Создаю пользователя: {}", userDto);
         return userClient.create(userDto);
     }
 
     @PatchMapping("/{userId}")
     public ResponseEntity<Object> updateUser(@PathVariable long userId, @RequestBody UserDto userDto) {
+        if (userDto.getEmail() != null) {
+            userValidator.checkEmailUniqueForUpdate(userDto.getEmail(), userId);
+        }
         log.info("Обновляю пользователя с id={}", userId);
         return userClient.update(userId, userDto);
     }
@@ -47,3 +52,6 @@ public class UserController {
         return userClient.delete(userId);
     }
 }
+
+
+

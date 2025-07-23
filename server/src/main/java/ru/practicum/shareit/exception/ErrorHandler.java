@@ -8,7 +8,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
@@ -27,18 +26,6 @@ public class ErrorHandler {
         return ResponseEntity.status(status).body(error);
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationError(MethodArgumentNotValidException ex) {
-        return buildError(HttpStatus.BAD_REQUEST, "Ошибка валидации",
-                ex.getBindingResult().getFieldError() != null ?
-                        ex.getBindingResult().getFieldError().getDefaultMessage() : "Invalid data");
-    }
-
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<Map<String, String>> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
-        return buildError(HttpStatus.BAD_REQUEST, "Некорректный параметр запроса", ex.getMessage());
-    }
-
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<Map<String, String>> handleResponseStatus(ResponseStatusException ex) {
         return buildError(HttpStatus.valueOf(ex.getStatusCode().value()), ex.getReason(), null);
@@ -54,6 +41,7 @@ public class ErrorHandler {
     public ResponseEntity<Map<String, String>> handleOtherErrors(Throwable ex) {
         log.error("Необработанная ошибка на сервере", ex);
 
-        return buildError(HttpStatus.BAD_REQUEST, "Ошибка обработки запроса", ex.getMessage());
+        return buildError(HttpStatus.INTERNAL_SERVER_ERROR, "Ошибка обработки запроса", ex.getMessage());
     }
 }
+

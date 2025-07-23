@@ -3,21 +3,18 @@ package ru.practicum.shareit.user.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.Import;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
-import ru.practicum.shareit.user.validation.UserValidator;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@DataJpaTest
-@Import({UserServiceImpl.class, UserValidator.class})
+@SpringBootTest
 class UserServiceImplTest {
 
     @Autowired
@@ -48,17 +45,6 @@ class UserServiceImplTest {
         assertThat(fromDb.getEmail()).isEqualTo("stas@example.com");
     }
 
-    @Test
-    void addUser_DuplicateEmail_ShouldThrow() {
-        userService.addUser(userDto);
-        UserDto duplicate = new UserDto();
-        duplicate.setName("Другой");
-        duplicate.setEmail("stas@example.com");
-
-        assertThatThrownBy(() -> userService.addUser(duplicate))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("Email уже используется");
-    }
 
     @Test
     void updateUser_ShouldUpdateNameAndEmail() {

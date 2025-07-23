@@ -16,14 +16,12 @@ import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.mapper.ItemResponseMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.item.validation.ItemValidator;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
-
 @Service
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
@@ -31,15 +29,13 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
-    private final ItemValidator itemValidator;
-    private final BookingRepository bookingRepository;
     private final ItemRequestRepository requestRepository;
+    private final BookingRepository bookingRepository;
 
     @Override
     @Transactional
     public ItemDto addItem(Long ownerId, ItemDto itemDto) {
-        itemValidator.checkUserExistence(ownerId);
-
+        // Убираем валидацию ownerId, так как это уже сделано на шлюзе
         Item item = ItemMapper.toItem(itemDto);
 
         item.setOwner(userRepository.findById(ownerId)
@@ -54,19 +50,18 @@ public class ItemServiceImpl implements ItemService {
         return ItemMapper.toDto(savedItem);
     }
 
-
     @Override
     @Transactional
     public ItemDto updateItem(Long ownerId, Long itemId, ItemDto itemDto) {
-        if (ownerId == null || ownerId <= 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Для выполнения операции необходимо указать корректный идентификатор пользователя.");
-        }
-
-        itemValidator.checkItemExistence(itemId);
-        itemValidator.checkOwner(itemId, ownerId);
+        // Валидация ownerId теперь не нужна, так как проверка уже происходит на шлюзе
 
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Предмет с таким ID не найден"));
+
+        // Проверяем, что пользователь является владельцем предмета
+        if (!item.getOwner().getId().equals(ownerId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Вы не являетесь владельцем этого предмета");
+        }
 
         if (itemDto.getName() != null) item.setName(itemDto.getName());
         if (itemDto.getDescription() != null) item.setDescription(itemDto.getDescription());
@@ -80,8 +75,6 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional(readOnly = true)
     public ItemResponseDto getItem(Long itemId, Long userId) {
-        itemValidator.checkItemExistence(itemId);
-
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Предмет не найден"));
 
@@ -96,8 +89,6 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional(readOnly = true)
     public List<ItemResponseDto> getItemsByOwner(Long ownerId) {
-        itemValidator.checkUserExistence(ownerId);
-
         List<Item> items = itemRepository.findByOwnerId(ownerId);
 
         return items.stream()
@@ -121,9 +112,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public CommentDto addComment(Long userId, Long itemId, CommentDto commentDto) {
-        itemValidator.checkItemExistence(itemId);
-        itemValidator.checkUserExistence(userId);
-
+        // Здесь также валидация уже не нужна, так как она происходит на шлюзе
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Вещь не найдена"));
 
@@ -143,3 +132,5 @@ public class ItemServiceImpl implements ItemService {
         return CommentMapper.toDto(saved);
     }
 }
+
+

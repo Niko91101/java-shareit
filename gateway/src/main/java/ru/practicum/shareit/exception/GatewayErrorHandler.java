@@ -25,7 +25,8 @@ public class GatewayErrorHandler {
     public ResponseEntity<Map<String, String>> handleValidation(MethodArgumentNotValidException ex) {
         Map<String, String> error = new HashMap<>();
         error.put("error", "Ошибка валидации");
-        error.put("details", ex.getBindingResult().getFieldError().getDefaultMessage());
+        error.put("details", ex.getBindingResult().getFieldError() != null ?
+                ex.getBindingResult().getFieldError().getDefaultMessage() : "Invalid data");
         log.warn("Ошибка валидации: {}", ex.getMessage());
         return ResponseEntity.badRequest()
                 .header("Content-Type", "application/json; charset=UTF-8")
@@ -66,3 +67,5 @@ public class GatewayErrorHandler {
                 .body(error);
     }
 }
+
+

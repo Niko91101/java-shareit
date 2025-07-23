@@ -49,15 +49,6 @@ class UserControllerTest {
     }
 
     @Test
-    void testCreateUser_InvalidEmail() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .content("{\"name\":\"Стас\",\"email\":\"неправильно\"}"))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     void testUpdateUser() throws Exception {
         UserDto response = new UserDto();
         response.setId(1L);

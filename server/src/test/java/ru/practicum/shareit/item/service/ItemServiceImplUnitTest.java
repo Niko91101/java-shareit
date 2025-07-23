@@ -11,7 +11,6 @@ import ru.practicum.shareit.comment.repository.CommentRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.item.validation.ItemValidator;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
@@ -32,8 +31,6 @@ class ItemServiceImplUnitTest {
     private UserRepository userRepository;
     @Mock
     private CommentRepository commentRepository;
-    @Mock
-    private ItemValidator itemValidator;
     @Mock
     private BookingRepository bookingRepository;
     @Mock
