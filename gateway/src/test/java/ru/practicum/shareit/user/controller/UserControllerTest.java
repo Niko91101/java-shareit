@@ -11,6 +11,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.practicum.shareit.user.client.UserClient;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.validator.UserValidator;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -29,6 +30,9 @@ class UserControllerTest {
 
     @MockBean
     private UserClient userClient;
+
+    @MockBean
+    private UserValidator userValidator;
 
     @Test
     void testCreateUser() throws Exception {

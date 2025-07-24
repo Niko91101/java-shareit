@@ -54,18 +54,6 @@ public class GatewayErrorHandler {
                 .header("Content-Type", "application/json; charset=UTF-8")
                 .body(error);
     }
-
-    @ExceptionHandler(Throwable.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<Map<String, String>> handleOther(Throwable ex) {
-        Map<String, String> error = new HashMap<>();
-        error.put("error", "Некорректные данные");
-        error.put("details", ex.getMessage());
-        log.warn("Ошибка с запросом: {}", ex.getMessage());
-        return ResponseEntity.badRequest()
-                .header("Content-Type", "application/json; charset=UTF-8")
-                .body(error);
-    }
 }
 
 

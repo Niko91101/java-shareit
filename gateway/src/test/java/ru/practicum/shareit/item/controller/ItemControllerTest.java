@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.practicum.shareit.item.client.ItemClient;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.validator.ItemValidation;
 import ru.practicum.shareit.item.validator.TextValidator;
 
 import java.nio.charset.StandardCharsets;
@@ -37,6 +38,9 @@ class ItemControllerTest {
 
     @MockBean
     private ItemClient itemClient;
+
+    @MockBean
+    private ItemValidation itemValidation;
 
     @Test
     void testGetItemsByOwner() throws Exception {

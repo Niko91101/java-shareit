@@ -98,16 +98,4 @@ class BookingValidatorTest {
         LocalDateTime end = start.plusHours(2);
         assertDoesNotThrow(() -> validator.checkBookingDates(start, end));
     }
-
-    @Test
-    void checkUserExistence_throwsIfNotFound() {
-        when(userRepository.findById(1L)).thenReturn(Optional.empty());
-        assertThrows(ResponseStatusException.class, () -> validator.checkUserExistence(1L));
-    }
-
-    @Test
-    void checkUserExistence_passesIfFound() {
-        when(userRepository.findById(1L)).thenReturn(Optional.of(new User()));
-        assertDoesNotThrow(() -> validator.checkUserExistence(1L));
-    }
 }

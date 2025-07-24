@@ -1,6 +1,5 @@
 package ru.practicum.shareit.user.controller;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +18,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<UserDto> create(@RequestBody @Valid UserDto userDto) {
+    public ResponseEntity<UserDto> create(@RequestBody UserDto userDto) {
         log.info("Server: Создаю пользователя {}", userDto);
         return ResponseEntity.ok(userService.addUser(userDto));
     }

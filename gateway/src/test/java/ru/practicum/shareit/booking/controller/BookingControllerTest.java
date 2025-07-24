@@ -11,6 +11,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.practicum.shareit.booking.client.BookingClient;
 import ru.practicum.shareit.booking.dto.BookItemRequestDto;
+import ru.practicum.shareit.booking.validator.BookingValidation;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -29,6 +30,9 @@ class BookingControllerTest {
 
     @MockBean
     private BookingClient bookingClient;
+
+    @MockBean
+    private BookingValidation bookingValidation;
 
     @Test
     void testGetBookings() throws Exception {

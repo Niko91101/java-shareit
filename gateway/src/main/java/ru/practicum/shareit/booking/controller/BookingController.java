@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.client.BookingClient;
 import ru.practicum.shareit.booking.dto.BookItemRequestDto;
 import ru.practicum.shareit.booking.dto.BookingState;
+import ru.practicum.shareit.booking.validator.BookingValidation;
 
 @Controller
 @RequestMapping(path = "/bookings")
@@ -22,6 +23,7 @@ import ru.practicum.shareit.booking.dto.BookingState;
 public class BookingController {
 
     private final BookingClient bookingClient;
+    private final BookingValidation bookingValidation;
 
     @GetMapping
     public ResponseEntity<Object> getBookings(@RequestHeader("X-Sharer-User-Id") long userId,
@@ -39,6 +41,9 @@ public class BookingController {
     public ResponseEntity<Object> bookItem(@RequestHeader("X-Sharer-User-Id") long userId,
                                            @RequestBody @Valid BookItemRequestDto requestDto) {
         log.info("Создаём бронирование {}, userId={}", requestDto, userId);
+
+        bookingValidation.checkBookingDates(requestDto.getStart(), requestDto.getEnd());
+
         return bookingClient.bookItem(userId, requestDto);
     }
 

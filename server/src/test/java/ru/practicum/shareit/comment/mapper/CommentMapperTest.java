@@ -109,6 +109,4 @@ class CommentMapperTest {
         Comment comment = CommentMapper.toComment(null);
         assertThat(comment).isNull();
     }
-
-
 }

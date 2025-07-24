@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking.validation;
 
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
@@ -10,15 +11,11 @@ import ru.practicum.shareit.user.repository.UserRepository;
 import java.time.LocalDateTime;
 
 @Component
+@AllArgsConstructor
 public class BookingValidator {
 
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
-
-    public BookingValidator(UserRepository userRepository, ItemRepository itemRepository) {
-        this.userRepository = userRepository;
-        this.itemRepository = itemRepository;
-    }
 
     public void checkItemAvailability(Long itemId) {
         Item item = itemRepository.findById(itemId)
@@ -45,10 +42,5 @@ public class BookingValidator {
         if (start.isBefore(LocalDateTime.now().minusSeconds(1))) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Дата начала бронирования не может быть в прошлом");
         }
-    }
-
-    public void checkUserExistence(Long userId) {
-        userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь не найден"));
     }
 }

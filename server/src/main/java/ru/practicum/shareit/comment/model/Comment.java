@@ -1,6 +1,5 @@
 package ru.practicum.shareit.comment.model;
 
-
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

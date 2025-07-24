@@ -157,5 +157,4 @@ class ItemRequestMapperTest {
         assertThat(dto.getItems().get(0).getName()).isEqualTo("Ноутбук");
         assertThat(dto.getItems().get(0).getOwnerId()).isEqualTo(50L);
     }
-
 }
